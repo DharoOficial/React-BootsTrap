@@ -1,10 +1,47 @@
-import React from 'react';
+import { useHistory } from "react-router-dom";
+import React, { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import '../login/index.css';
 import Menu from '../../menu';
 import Rodape from '../../rodape';
 
 const Login = () => {
+
+    let history = useHistory()
+
+    const [email, setEmail] = useState(''); 
+    const [senha, setSenha] = useState(''); 
+
+    const logar = (event) => {
+        event.preventDefault();
+        console.log('${email} - ${senha}');
+
+        fetch('http://localhost:5000/api/account/login',{
+            method :'POST',
+            body : JSON.stringify({
+                email : email,
+                senha : senha
+            }),
+            headers : {
+                'content-type' : 'application/json'
+            }
+        })
+        .then(response =>{
+            if(response.ok === true){
+                return response.json();
+            }
+
+            alert('dadosinválidos')
+            history.push('/eventos')
+        })
+        .then(data => {
+            console.log(data);
+            localStorage.setItem('token-nyous', data.token);
+        })
+        .catch(err => console.error(err))
+
+    }
+
     return (
         <div>
             <Menu />
@@ -19,10 +56,10 @@ const Login = () => {
             4/yg+rFUKbTj1v21Udunz4W3jFp5546qUhTZc+R/io/OHOQutBpcMncLmH96ECi2YEAsVWpMvDCbEQoXRhFiosC3UC61euoc3oUKr9wf9L7/EhcGEWKgwmhALFYYTYp
             3CQw5vuQufDm+z+zR5YTQhViqc3afZC+cPb+kLm828iekLowmxUGE0IRYqnDm8CRRGE2KhQhseJ/apRGHw875QYTQhFiqcmhCLFE4c3kQKzf1hLU9hP19o/s/7R1nYj
             Z90q/nCcEJ8dIW2cBzy3HCycvVHV/htNSATCAAAAAAAAAAAAAAAAAAAAAAAAAAAAOCT35VyNDvJlTMAAAAAAElFTkSuQmCC" className="logo"/>
-                <Form>
+                <Form onSubmit={event => logar(event)}>
                     <Form.Group controlId="formBasicEmail">
                         <Form.Label>Email</Form.Label>
-                        <Form.Control type="email" placeholder="Digite seu email aqui" />
+                        <Form.Control type="email" placeholder="Digite seu email aqui" value={email} onChange={event => setEmail(event.target.value)} />
                         <Form.Text className="text-muted">
                             Nao compartilhe seu email com niguem
                     </Form.Text>
@@ -30,7 +67,7 @@ const Login = () => {
 
                     <Form.Group controlId="formBasicPassword">
                         <Form.Label>Senha</Form.Label>
-                        <Form.Control type="password" placeholder="Digite sua senha aqui" />
+                        <Form.Control type="password" placeholder="Digite sua senha aqui" value={senha} onChange={event => setSenha(event.target.value)} />
                     </Form.Group>
                     
                     <Button variant="primary" type="submit">
